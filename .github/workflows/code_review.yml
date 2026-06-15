@@ -1,0 +1,30 @@
+name: AI Code Reviewer
+
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest    
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic PyGithub
+
+      - name: Run AI Code Reviewer
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}  # from GitHub secrets
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}            # automatically provided by GitHub
+          PR_NUMBER: ${{ github.event.pull_request.number }}   # PR number automatically passed
+          REPO_NAME: ${{ github.repository }}                  # repo name automatically passed
+        run: python reviewer.py
